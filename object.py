@@ -26,5 +26,5 @@ class Object2D():
         return points
 
     @staticmethod
-    def scale(points: np.array | list | tuple, zoom = 0.) -> np.array:
+    def scale(points: np.array | list | tuple, zoom: float = 0.) -> np.array:
         pass
