@@ -1,5 +1,5 @@
 import pygame as pg
-from object import Object3D
+from object import Object3D, Axes
 from camera import *
 from projection import *
 
@@ -22,21 +22,30 @@ class Render:
         self.init_objects()
 
     def init_objects(self):
-        self.camera = Camera(self, [0.5, 1, -4])
+        self.camera = Camera(self, [-5, 5, -50])
         self.projection = Projection(self)
-        self.object = Object3D(self)
+        # self.object = Object3D(self)
+        self.object = Object3D(self, path='models3D/Lowpoly_tree_sample.obj')
+        # self.object = Object3D(self, path='models3D/lego_man.obj')
         self.object.translate([0.2, 0.4, 0.2])
-        self.object.rotation([0.1, 0.3, 0.1])
+        # self.object.rotation([0.1, 0.3, 0.1])
+        self.axes = Axes(self)
+        self.axes.translate([0.7, 0.9, 0.7])
+        self.world_axes = Axes(self)
+        self.world_axes.movement_flag = False
+        self.world_axes.translate([0.0001, 0.0001, 0.0001])
 
     def draw_(self):
         self.screen.fill(colors["black"])
+        self.world_axes.draw()
+        self.axes.draw()
         self.object.draw()
 
     def run(self):
         running = True
         while running:
             self.draw_()
-            self.object.rotation([0.01, 0.01, 0.01])
+            self.camera.control()
             pg.display.set_caption(str(self.clock.get_fps()))
             pg.display.flip()
             for event in pg.event.get():

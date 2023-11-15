@@ -13,6 +13,48 @@ class Camera:
         self.v_fov = self.h_fov * (render.height / render.width)
         self.near_plane = 0.1
         self.far_plane = 100
+        self.translate_speed = 0.02
+        self.rotation_speed = 0.005
+
+    def control(self):
+        key = pg.key.get_pressed()
+        if key[pg.K_a]:
+            self.position -= self.right * self.translate_speed
+        if key[pg.K_d]:
+            self.position += self.right * self.translate_speed
+        if key[pg.K_s]:
+            self.position -= self.forward * self.translate_speed
+        if key[pg.K_w]:
+            self.position += self.forward * self.translate_speed
+        if key[pg.K_q]:
+            self.position += self.up * self.translate_speed
+        if key[pg.K_e]:
+            self.position -= self.up * self.translate_speed
+
+        self.camera_rot(key)
+
+    def camera_rot(self, key):
+        if key[pg.K_LEFT]:
+            rotate = rotate_y(-self.rotation_speed)
+            self.forward = self.forward @ rotate
+            self.right = self.right @ rotate
+            self.up = self.up @ rotate
+        if key[pg.K_RIGHT]:
+            rotate = rotate_y(self.rotation_speed)
+            self.forward = self.forward @ rotate
+            self.right = self.right @ rotate
+            self.up = self.up @ rotate
+        if key[pg.K_UP]:
+            rotate = rotate_x(-self.rotation_speed)
+            self.forward = self.forward @ rotate
+            self.right = self.right @ rotate
+            self.up = self.up @ rotate
+        if key[pg.K_DOWN]:
+            rotate = rotate_x(self.rotation_speed)
+            self.forward = self.forward @ rotate
+            self.right = self.right @ rotate
+            self.up = self.up @ rotate
+
 
     def translate_matrix(self) -> np.array:
         x, y, z, _ = self.position
