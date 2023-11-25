@@ -1,0 +1,10 @@
+rapidmodule.cc
+setup.py
+rapid/RAPID.cc
+rapid/build.cc
+rapid/collide.cc
+rapid/overlap.cc
+rapidmodule.egg-info/PKG-INFO
+rapidmodule.egg-info/SOURCES.txt
+rapidmodule.egg-info/dependency_links.txt
+rapidmodule.egg-info/top_level.txt

@@ -22,11 +22,11 @@ class Render:
         self.init_objects()
 
     def init_objects(self):
-        self.camera = Camera(self, [-5, 5, -50])
+        self.camera = Camera(self, [-5, 5, -150])
         self.projection = Projection(self)
         # self.object = Object3D(self)
-        self.object = Object3D(self, path='models3D/Lowpoly_tree_sample.obj')
-        # self.object = Object3D(self, path='models3D/lego_man.obj')
+        # self.object = Object3D(self, path='models3D/Lowpoly_tree_sample.obj')
+        self.object = Object3D(self, path='models3D/lego_man.obj')
         self.object.translate([0.2, 0.4, 0.2])
         # self.object.rotation([0.1, 0.3, 0.1])
         self.axes = Axes(self)

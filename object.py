@@ -93,6 +93,7 @@ class Object3D():
             polygon = points[face]
             # print("\n\n\n",polygon,"\n\n\n")
             if not any_(polygon, self.render.w_width, self.render.w_height):
+            # if not np.any(polygon == self.render.w_width) or np.any(polygon == self.render.w_height):
                 pg.draw.polygon(self.render.screen, color, polygon, 1)
                 if self.label:
                     text = self.font.render(self.label[index], True, pg.Color('white'))
@@ -101,6 +102,7 @@ class Object3D():
     def movement(self):
         # return
         if self.movement_flag:
+            # self.translate(np.array([0.005,0,0]))
             self.rotation([pg.time.get_ticks() % 0.005, pg.time.get_ticks() % 0.005, pg.time.get_ticks() % 0.005])
 
     def rotation(self, angles: ArrayLike) -> None:
