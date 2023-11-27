@@ -36,3 +36,11 @@ def rotate_z(angle: float = 0.):
         [0, 0, 1, 0],
         [0, 0, 0, 1]
     ])
+
+def scale_f(k: float = 1.):
+    return np.array([
+        [k, 0, 0, 0],
+        [0, k, 0, 0],
+        [0, 0, k, 0],
+        [0, 0, 0, 1]
+    ])
