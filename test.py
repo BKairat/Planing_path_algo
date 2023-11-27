@@ -1,17 +1,21 @@
-from pyflann import *
+import rapidmodule
 import numpy as np
+from transformation_matrix import *
+a = [[[0, 0, 0], [10, 0, 0], [0, 10, 0]],
+    [[0, 0, 0], [10, 0, 0], [0, 0, 10]],
+    [[0, 0, 0], [0, 0, 10], [0, 10, 0]],
+    [[0, 0, 10], [10, 0, 0], [0, 10, 0]],
+     ]
 
-dataset = np.array(
-    [[1., 1, 1, 2, 3],
-     [10, 10, 10, 3, 2],
-     [100, 100, 2, 30, 1]
-     ])
-testset = np.array(
-    [[1., 1, 1, 1, 1],
-     [90, 90, 10, 10, 1]
-     ])
-flann = FLANN()
-result, dists = flann.nn(
-    dataset, testset, 2, algorithm="kmeans", branching=32, iterations=7, checks=16)
-print(result)
-print(dists)
+c = a
+
+b = np.array(a)
+b = np.insert(b, 3, np.ones(3), axis = 2)
+b = b @ rotate_x(1.45)
+b = b @ translate([100000, 1000000, 10000000])
+b = np.delete(b, -1, -1)
+b = b.tolist()
+# print(b)
+
+print(rapidmodule.collision(a,b))
+#

@@ -6,6 +6,7 @@ import pandas as pd
 from gui import Render
 from object import Object3D
 import numpy as np
+import rapidmodule
 
 
 def copy_file_to_folder(file: str, dest_folder: str) -> str:

@@ -38,24 +38,28 @@ PyObject *detect_collision(PyObject* self, PyObject* args){
     RAPID_model *obstacle = new RAPID_model;
     PyObject *robot_py, *obstacle_py;
 
-    PyArg_ParseTuple(args, "OO", &robot_py, &obstacle_py);
+    if (!PyArg_ParseTuple(args, "OO", &robot_py, &obstacle_py)){
+        cout << "something wrong!!" << endl;
+    };
+
 
     double triangle[3][3];
 
     for (Py_ssize_t i = 0; i < PyList_Size(robot_py); ++i){
-        // cout << "robot " << i << endl;
         get_triangle(triangle, PyList_GetItem(robot_py, i));
         robot -> AddTri(triangle[0], triangle[1], triangle[2], i);
     }
 
+    double triangle_[3][3];
+
     for (Py_ssize_t i = 0; i < PyList_Size(obstacle_py); ++i){
-        // cout << "obstacle " << i << endl;
-        get_triangle(triangle, PyList_GetItem(robot_py, i));
-        obstacle -> AddTri(triangle[0], triangle[1], triangle[2], i);
+        get_triangle(triangle_, PyList_GetItem(obstacle_py, i));
+        obstacle -> AddTri(triangle_[0], triangle_[1], triangle_[2], i);
     }
-    
+    robot -> EndModel();
+    obstacle -> EndModel();
     double R1[3][3], R2[3][3], T1[3], T2[3];
-  
+
     R1[0][0] = R1[1][1] = R1[2][2] = 1.0;
     R1[0][1] = R1[1][0] = R1[2][0] = 0.0;
     R1[0][2] = R1[1][2] = R1[2][1] = 0.0;
@@ -63,19 +67,15 @@ PyObject *detect_collision(PyObject* self, PyObject* args){
     R2[0][0] = R2[1][1] = R2[2][2] = 1.0;
     R2[0][1] = R2[1][0] = R2[2][0] = 0.0;
     R2[0][2] = R2[1][2] = R2[2][1] = 0.0;
-    
+
     T1[0] = 0.0;  T1[1] = 0.0; T1[2] = 0.0;
     T2[0] = 0.0;  T2[1] = 0.0; T2[2] = 0.0;
 
     if (check_col(R1,T1,robot,R2,T2,obstacle)){
-        cout << "collision" << endl;
+        return Py_True;
     } else {
-        cout << "no collision" << endl;
+        return Py_False;
     }
-    robot -> EndModel();
-    obstacle -> EndModel();
-
-    Py_RETURN_NONE;
 }
 
 // ================== extending part ================== //

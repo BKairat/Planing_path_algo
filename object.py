@@ -131,6 +131,11 @@ class Object3D():
         self.points = self.points @ rotate_y(angles[1])
         self.points = self.points @ rotate_z(angles[2])
 
+    def rapid_mod(self) -> list:
+        points = self.points.tolist()
+        return [self.points[face].tolist() for face in self.faces]
+
+
 
 class Axes(Object3D):
     def __init__(self, render):
