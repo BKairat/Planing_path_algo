@@ -34,7 +34,7 @@ class Render:
         # self.axes.translate([0.7, 0.9, 0.7])
         self.world_axes = Axes(self)
         self.world_axes.movement_flag = False
-        self.world_axes.translate([0.0001, 0.0001, 0.0001])
+        # self.world_axes.translate([0.0001, 0.0001, 0.0001])
 
     def add_object(self, other: Object3D):
         other.render = self

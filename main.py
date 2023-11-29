@@ -3,7 +3,6 @@ import json
 import sys
 from object import Object2D, Object3D
 from datasets import Dataset
-from planing_algorithms import RRT
 import numpy as np
 # pg.init()
 

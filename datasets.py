@@ -1,12 +1,17 @@
 from __future__ import annotations
+
+import copy
 import os
 import shutil
 import torch
 import pandas as pd
 from gui import Render
 from object import Object3D
+from configurations import Configuration
+import pygame as pg
 import numpy as np
-import rapidmodule
+from planing_algorithms import RRT
+from random import uniform
 
 
 def copy_file_to_folder(file: str, dest_folder: str) -> str:
@@ -60,27 +65,80 @@ class Dataset():
 
     def show(self):
         app = Render()
-        robot = Object3D(None, path = self.rob, scale=0.2)
+        robot = Object3D(None, path = self.rob, scale=0.2, l_color=pg.Color('blue'))
         goal = Object3D(None, path = self.goal)
+        robot.set_to(Configuration(self.config['robot.obj'][0],
+                                   self.config['robot.obj'][1],
+                                   None),
+                     change_c=True)
+        goal.set_to(Configuration(self.config['goal.obj'][0], self.config['goal.obj'][1], None), change_c=True)
 
-        robot.movement(*self.config['robot.obj'])
-        goal.movement(*self.config['goal.obj'])
+        # a = np.array([uniform(-np.pi, np.pi), uniform(-np.pi, np.pi), uniform(-np.pi, np.pi)])
+
+        # seq = [
+        #     Configuration(np.array([10, 0, 0]),
+        #                   a),
+        #     Configuration(np.array([10, 0, 0]),
+        #                   -a),
+        #     Configuration(np.array([10, 0, 0]),
+        #                   a),
+        #     Configuration(np.array([10, 0, 0]),
+        #                   -a),
+        #     Configuration(np.array([10, 0, 0]),
+        #                   a),
+        #     Configuration(np.array([10, 0, 0]),
+        #                   -a),
+            # Configuration(np.array([20, 0, 20]), np.array([0, 0, 0]))
+        # ]
+
+        # seq = [
+        #     Configuration(np.array([10, 0, 0]), np.array([uniform(-np.pi, np.pi), uniform(-np.pi, np.pi), uniform(-np.pi, np.pi)])),
+        #     Configuration(np.array([10, 0, 10]), np.array([uniform(-np.pi, np.pi), uniform(-np.pi, np.pi), uniform(-np.pi, np.pi)])),
+        #     Configuration(np.array([10, 0, 10]), np.array([uniform(-np.pi, np.pi), uniform(-np.pi, np.pi), uniform(-np.pi, np.pi)])),
+        #     Configuration(np.array([10, 3450, 10]), np.array([uniform(-np.pi, np.pi), uniform(-np.pi, np.pi), uniform(-np.pi, np.pi)])),
+        #     Configuration(np.array([1780, 0, 10]), np.array([uniform(-np.pi, np.pi), uniform(-np.pi, np.pi), uniform(-np.pi, np.pi)])),
+        #     Configuration(np.array([10, 0, 10]), np.array([uniform(-np.pi, np.pi), uniform(-np.pi, np.pi), uniform(-np.pi, np.pi)])),
+        #     Configuration(np.array([10, 0, 178560]), np.array([uniform(-np.pi, np.pi), uniform(-np.pi, np.pi), uniform(-np.pi, np.pi)])),
+        #     Configuration(np.array([10, 78, 10]), np.array([uniform(-np.pi, np.pi), uniform(-np.pi, np.pi), uniform(-np.pi, np.pi)])),
+        #     Configuration(np.array([1078, 0, 1045]), np.array([uniform(-np.pi, np.pi), uniform(-np.pi, np.pi), uniform(-np.pi, np.pi)])),
+        #     Configuration(np.array([20, 0, 20]), np.array([0, 0, 0]))
+        #     ]
+        # print("robot config", robot.config.trans, robot.config.rot)
+        # for conf in seq:
+        #     robot.set_to(conf)
+        # print("robot config", robot.in_collision(goal))
 
         app.add_object(robot)
         app.add_object(goal)
 
+        obs = []
+
         for o in self.obst:
             obst = Object3D(None, path=o)
-            obst.movement(*self.config[os.path.basename(o)])
+            obst.set_to(Configuration(self.config[os.path.basename(o)][0], self.config[os.path.basename(o)][1], None), change_c=True)
+            obs.append(obst)
             app.add_object(obst)
-        p = np.array([self.data.iloc[i][1:4] for i in range(len(self.data))])
-        p = np.insert(p, 3, np.ones(len(self.data)), axis = 1)
+        algo = RRT(robot=robot.copy_o(), goal=goal, map_size=(25, 0, 25), obstacles=obs)
+
+        algo.plan()
+        # p = np.array([self.data.iloc[i][1:4] for i in range(len(self.data))])
+        # p = np.insert(p, 3, np.ones(len(self.data)), axis = 1)
+        # p = np.array([i.trans.tolist() + [1] for i in algo.G])
+
+        diff_path1 = Object3D(None,
+                             points=[g.trans.tolist() + [1] for g in algo.G],
+                             faces=[i for i in range(len(algo.G))])
+        diff_path1.draw_points = True
+        app.add_object(diff_path1)
+
         diff_path = Object3D(None,
-                             points=p,
-                             faces=[i for i in range(len(self.data))])
+                             points=[robot.config.trans.tolist() + [1] for _ in range(3)],
+                             faces=[i for i in range(3)])
         diff_path.draw_points = True
         app.add_object(diff_path)
-
+        # print("datasets/robot_conf", goal.config.trans, goal.config.rot)
+        # for i in algo.G:
+            # print(i.trans)
         app.run()
 
 

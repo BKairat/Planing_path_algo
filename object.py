@@ -6,6 +6,7 @@ from transformation_matrix import *
 from camera import *
 from projection import *
 from numba import njit
+from rapidmodule import collision
 
 @njit(fastmath=True)
 def any_(arr: ArrayLike, a: float, b: float) -> bool:
@@ -49,16 +50,21 @@ class Object3D():
                  faces: ArrayLike = np.array([(0, 1, 2, 3), (4, 5, 6, 7), (0, 4, 5, 1),
                                         (2, 3, 7, 6), (1, 2, 6, 5), (0, 3, 7, 4)]),
                  path: str | None = None,
-                 scale: float | None = None
+                 scale: float | None = None,
+                 p_color: tuple | pg.Color = pg.Color('red'),
+                 l_color: tuple | pg.Color = pg.Color('orange'),
                  ):
+        self.config = None
         self.render = render
         if path is None:
             self.points = points
             self.faces = faces
         else:
             self.points, self.faces = self.get_from_obj_file(path, scale)
+
         self.font = pg.font.SysFont('Arial', 30, bold=True)
-        self.color_faces = [(pg.Color('orange'), face) for face in self.faces]
+        self.color_faces = [(l_color, face) for face in self.faces]
+        self.p_color = p_color
         self.movement_flag = True
         self.label = ''
         self.draw_points = False
@@ -79,9 +85,9 @@ class Object3D():
         x = (max(points, key = lambda x: x[0])[0] + min(points, key = lambda x: x[0])[0])/2
         y = (max(points, key = lambda x: x[1])[1] + min(points, key = lambda x: x[1])[1])/2
         z = min(points, key = lambda x: x[2])[2]
-        self.ref_point = np.array([x, y, z, 0])
-        points = points - self.ref_point
-        self.ref_point -= self.ref_point
+        ref_point = np.array([x, y, z, 0])
+        points = points - ref_point
+        self.config = Configuration(ref_point[:-1], np.zeros(3))
         return ([np.array(p) for p in points],
                 [np.array(f) for f in faces])
 
@@ -89,7 +95,11 @@ class Object3D():
         self.screen_projection()
 
     def translate(self, trans: ArrayLike) -> None:
+        self.config.trans += trans
         self.points = self.points @ translate(trans)
+
+    def in_collision(self, other: Object3D) -> bool:
+        return collision(self.rapid_mod(), other.rapid_mod())
 
     def screen_projection(self):
         points = self.points @ self.render.camera.camera_matrix()
@@ -103,37 +113,62 @@ class Object3D():
             for index, point in enumerate(points):
                 if not any_(point, self.render.w_width, self.render.w_height):
                     pg.draw.circle(
-                        self.render.screen, pg.Color('red'),
+                        self.render.screen, self.p_color,
                         point, 10 * np.exp(-0.005*np.sqrt(sum((self.points[index] - self.render.camera.position) ** 2)))
                     )
         else:
             for index, color_face in enumerate(self.color_faces):
                 color, face = color_face
                 polygon = points[face]
-                # print("\n\n\n",polygon,"\n\n\n")
                 if not any_(polygon, self.render.w_width, self.render.w_height):
-                    # if not np.any(polygon == self.render.w_width) or np.any(polygon == self.render.w_height):
                     pg.draw.polygon(self.render.screen, color, polygon, 1)
                     if self.label:
                         text = self.font.render(self.label[index], True, pg.Color('black'))
                         self.render.screen.blit(text, polygon[-1])
 
-    def movement(self, trans: np.array, angles: np.array):
+    def set_to(self, configuration: Configuration, change_c: bool = False):
+        trans, rot = self.config.get_act(configuration)
+        # print(f">>> {rot}")
         self.translate(trans)
-        self.rotation(angles)
-        # if self.movement_flag:
-            # self.translate(np.array([0.005,0,0]))
-            # self.rotation([pg.time.get_ticks() % 0.005, pg.time.get_ticks() % 0.005, pg.time.get_ticks() % 0.005])
+        self.rotation(-self.config.rot)
+        self.rotation(configuration.rot)
+        if change_c:
+            min_y = min(self.points, key=lambda x: x[2])[1]
+            p = []
+            for i in self.points:
+                if np.allclose(i[1], min_y):
+                    p.append(i)
+            trans = min(p, key=lambda x: sum(x))
+            self.config.trans = np.array(trans[:-1])
+            self.config.rot = np.zeros(3)
+
+    def act(self, trans: np.array, rot: np.array) -> None:
+        self.translate(trans)
+        self.rotation(rot)
+
 
     def rotation(self, angles: ArrayLike) -> None:
         assert len(angles) == 3, 'rotation in 3D space must receive 3 angles (len(angles) == 3)'
+        pos = np.array(self.config.trans)
+        # print("-->",pos)
+        self.translate(-pos)
         self.points = self.points @ rotate_x(angles[0])
         self.points = self.points @ rotate_y(angles[1])
         self.points = self.points @ rotate_z(angles[2])
+        self.config.rot += angles
+        self.translate(pos)
 
     def rapid_mod(self) -> list:
-        points = self.points.tolist()
         return [self.points[face].tolist() for face in self.faces]
+
+    def dist_to(self, other: Object3D) -> float:
+        return np.sqrt(sum((self.config.trans - other.config.trans)**2))
+
+    def copy_o(self) -> Object3D:
+        ret = Object3D(None,points=np.copy(self.points),
+                       faces=np.copy(self.faces))
+        ret.config = self.config.copy()
+        return ret
 
 
 
@@ -148,3 +183,4 @@ class Axes(Object3D):
         self.colors = [pg.Color(col) for col in ['red', 'green', 'blue']]
         self.color_faces = [(color, face) for color, face in zip(self.colors, self.faces)]
         self.label = 'XYZ'
+        self.config = Configuration(trans=np.zeros(3), rot=np.zeros(3))

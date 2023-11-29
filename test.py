@@ -1,4 +1,4 @@
-import rapidmodule
+from rapidmodule import collision
 import numpy as np
 from transformation_matrix import *
 a = [[[0, 0, 0], [10, 0, 0], [0, 10, 0]],
@@ -17,5 +17,5 @@ b = np.delete(b, -1, -1)
 b = b.tolist()
 # print(b)
 
-print(rapidmodule.collision(a,b))
+print(collision(a,b))
 #

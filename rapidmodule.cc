@@ -72,8 +72,12 @@ PyObject *detect_collision(PyObject* self, PyObject* args){
     T2[0] = 0.0;  T2[1] = 0.0; T2[2] = 0.0;
 
     if (check_col(R1,T1,robot,R2,T2,obstacle)){
+        delete robot;
+        delete obstacle;
         return Py_True;
     } else {
+        delete robot;
+        delete obstacle;
         return Py_False;
     }
 }
