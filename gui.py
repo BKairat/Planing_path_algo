@@ -25,16 +25,7 @@ class Render:
     def init_camera(self):
         self.camera = Camera(self, [-5, 5, -15])
         self.projection = Projection(self)
-        # self.object = Object3D(self)
-        # self.object = Object3D(self, path='models3D/Lowpoly_tree_sample.obj')
-        # self.object = Object3D(self, path='models3D/lego_man.obj')
-        # self.object.translate([0.2, 0.4, 0.2])
-        # # self.object.rotation([0.1, 0.3, 0.1])
-        # self.axes = Axes(self)
-        # self.axes.translate([0.7, 0.9, 0.7])
         self.world_axes = Axes(self)
-        self.world_axes.movement_flag = False
-        # self.world_axes.translate([0.0001, 0.0001, 0.0001])
 
     def add_object(self, other: Object3D):
         other.render = self
@@ -44,8 +35,8 @@ class Render:
         self.screen.fill(colors["white"])
         self.world_axes.draw()
         # self.axes.draw(
-        for object in self.objects:
-            object.draw()
+        for obj in self.objects:
+            obj.draw()
 
     def run(self):
         running = True

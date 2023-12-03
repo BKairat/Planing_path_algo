@@ -2,16 +2,24 @@ import pygame as pg
 import json
 import sys
 from object import Object2D, Object3D
-from datasets import Dataset
+from customDatasets import DenoiseDataset, Generator
 import numpy as np
 # pg.init()
 
 from gui import Render
 
-ds = Dataset(load = 'diff_datasets/diffusion_0')
-ds.show()
+# ds = DenoiseDataset(load = 'diff_datasets/diffusion_0')
+
+# ds.show()
+
+# gn = Generator()
+# gn.generate_noised()
+
+ds = DenoiseDataset()
+# print(len(ds))
+ds.show(3)
 # app = Render()
-# # object = Object3D(None, path='models3D/obstacle_1.obj')
+# # object = Object3D(None, path='models3D/cube.obj')
 # object1 = Object3D(None, path='models3D/obstacle_2.obj')
 # object2 = Object3D(None, path='models3D/robot.obj')
 # # object2.draw_points = True

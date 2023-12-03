@@ -62,11 +62,8 @@ class Object3D():
         else:
             self.points, self.faces = self.get_from_obj_file(path, scale)
 
-        self.font = pg.font.SysFont('Arial', 30, bold=True)
         self.color_faces = [(l_color, face) for face in self.faces]
         self.p_color = p_color
-        self.movement_flag = True
-        self.label = ''
         self.draw_points = False
 
     def get_from_obj_file(self, path: str, scale: float | None) -> tuple:
@@ -85,9 +82,9 @@ class Object3D():
         x = (max(points, key = lambda x: x[0])[0] + min(points, key = lambda x: x[0])[0])/2
         y = (max(points, key = lambda x: x[1])[1] + min(points, key = lambda x: x[1])[1])/2
         z = min(points, key = lambda x: x[2])[2]
-        ref_point = np.array([x, y, z, 0])
+        ref_point = self.get_ref_point(points) -np.array([0, 0, 0, 1])
         points = points - ref_point
-        self.config = Configuration(ref_point[:-1], np.zeros(3))
+        self.config = Configuration(np.zeros(3), np.zeros(3))
         return ([np.array(p) for p in points],
                 [np.array(f) for f in faces])
 
@@ -95,6 +92,7 @@ class Object3D():
         self.screen_projection()
 
     def translate(self, trans: ArrayLike) -> None:
+        # print(trans)
         self.config.trans += trans
         self.points = self.points @ translate(trans)
 
@@ -122,35 +120,22 @@ class Object3D():
                 polygon = points[face]
                 if not any_(polygon, self.render.w_width, self.render.w_height):
                     pg.draw.polygon(self.render.screen, color, polygon, 1)
-                    if self.label:
-                        text = self.font.render(self.label[index], True, pg.Color('black'))
-                        self.render.screen.blit(text, polygon[-1])
 
-    def set_to(self, configuration: Configuration, change_c: bool = False):
+    def set_to(self, configuration: Configuration):
         trans, rot = self.config.get_act(configuration)
-        # print(f">>> {rot}")
         self.translate(trans)
-        self.rotation(-self.config.rot)
-        self.rotation(configuration.rot)
-        if change_c:
-            min_y = min(self.points, key=lambda x: x[2])[1]
-            p = []
-            for i in self.points:
-                if np.allclose(i[1], min_y):
-                    p.append(i)
-            trans = min(p, key=lambda x: sum(x))
-            self.config.trans = np.array(trans[:-1])
-            self.config.rot = np.zeros(3)
+        self.rotation(rot)
+        self.config.trans = np.array(configuration.trans)
+        self.config.rot = np.array(configuration.rot)
+        # print(self.config.rot)
 
     def act(self, trans: np.array, rot: np.array) -> None:
         self.translate(trans)
         self.rotation(rot)
 
-
     def rotation(self, angles: ArrayLike) -> None:
         assert len(angles) == 3, 'rotation in 3D space must receive 3 angles (len(angles) == 3)'
         pos = np.array(self.config.trans)
-        # print("-->",pos)
         self.translate(-pos)
         self.points = self.points @ rotate_x(angles[0])
         self.points = self.points @ rotate_y(angles[1])
@@ -170,6 +155,10 @@ class Object3D():
         ret.config = self.config.copy()
         return ret
 
+    def get_ref_point(self, points: ArrayLike) -> np.array:
+        points_ = np.array(points)
+        avg_p = sum(points_)/len(points_)
+        return min(points_, key=lambda x: sum((x-avg_p)**2))
 
 
 class Axes(Object3D):
@@ -182,5 +171,4 @@ class Axes(Object3D):
         self.faces = np.array([[0, 1], [0, 2], [0, 3]])
         self.colors = [pg.Color(col) for col in ['red', 'green', 'blue']]
         self.color_faces = [(color, face) for color, face in zip(self.colors, self.faces)]
-        self.label = 'XYZ'
         self.config = Configuration(trans=np.zeros(3), rot=np.zeros(3))

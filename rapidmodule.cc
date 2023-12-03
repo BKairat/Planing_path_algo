@@ -52,7 +52,7 @@ PyObject *detect_collision(PyObject* self, PyObject* args){
 
     double triangle_[3][3];
 
-    for (Py_ssize_t i = 0; i < PyList_Size(obstacle_py); ++i){
+    for (Py_ssize_t i = 0; i < PyList_Size(obstacle_py); ++i) {
         get_triangle(triangle_, PyList_GetItem(obstacle_py, i));
         obstacle -> AddTri(triangle_[0], triangle_[1], triangle_[2], i);
     }
