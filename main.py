@@ -12,12 +12,14 @@ from gui import Render
 
 # ds.show()
 
-# gn = Generator()
-# gn.generate_noised()
+gn = Generator()
+gn.generate_noised_simple()
 
-ds = DenoiseDataset()
-# print(len(ds))
-ds.show(3)
+# ds = DenoiseDataset()
+# # print(len(ds))
+# for i in range(len(ds)):
+    # ds.show(i)
+# (x_train, y_train), (x_test, y_test) = ds.load_data()
 # app = Render()
 # # object = Object3D(None, path='models3D/cube.obj')
 # object1 = Object3D(None, path='models3D/obstacle_2.obj')
