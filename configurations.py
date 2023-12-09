@@ -7,7 +7,7 @@ class Configuration():
                  rot: float | np.array,
                  parent: Configuration | None = None
                  ):
-        self.trans = trans
+        self.trans = np.array(trans)
         self.rot = rot
         self.parent: Configuration = parent
 

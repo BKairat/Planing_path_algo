@@ -98,13 +98,14 @@ class Generator():
         return np.column_stack((x_coords, y_coords)).astype("int64")
 
     @staticmethod
-    def generate_random_points_on_line(point1, point2, num_points):
-        t_values = np.random.rand(num_points)  # Random values between 0 and 1
+    def generate_random_points_on_line(point1: np.array, point2: np.array, num_points: int) -> np.array:
+        t_values = np.random.rand(num_points)
         line_points = point1 + t_values[:, np.newaxis] * (point2 - point1)
         return line_points
 
     @staticmethod
-    def generate_random_points_line(point1, point2, distance_range=0.05, n_points=10):
+    def generate_random_points_line(point1: ArrayLike, point2: ArrayLike,
+                                    distance_range: float = 0.05, n_points: int =10) -> list:
         x1, y1 = point1
         x2, y2 = point2
 

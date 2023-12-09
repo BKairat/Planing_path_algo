@@ -2,6 +2,7 @@ from __future__ import annotations
 from object import Object2D, Object3D
 from configurations import Configuration
 from random import uniform, choice
+from tqdm import tqdm
 from gui import Render
 import numpy as np
 import copy
@@ -14,7 +15,7 @@ class RRT():
                  delta_t: float = 5,
                  threshold: float = 5,
                  obstacles: [Object2D | Object3D] = [],
-                 iterations: int = 5
+                 iterations: int = 14
                  ):
         assert len(map_size) >= 2, ("RRT algorithm requires 2 or more dimensional space,"
                                     " map_size must contain at least 2 elements")
@@ -85,8 +86,7 @@ class RRT():
         max_iteration = 150
         new_conf = None
         path = []
-        for iter in range(max_iteration):
-            print("iter", iter)
+        for iter in tqdm(range(max_iteration)):
             while True:
                 if iter % 20 == 0:
                     new_conf = self.act_to_goal()
@@ -99,7 +99,7 @@ class RRT():
             self.add_conf(new_conf)
 
             if self.check_task(new_conf):
-                print("path was found!")
+                print("\n>>> INFO (RRT algorithm): path was found! \n")
                 cur = new_conf
                 while cur.parent:
                     path.append(cur)

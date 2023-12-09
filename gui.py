@@ -21,6 +21,8 @@ class Render:
         self.fps = 60
         self.init_camera()
         self.objects = []
+        self.paths = []
+        self.i_path: int = 0
 
     def init_camera(self):
         self.camera = Camera(self, [-5, 5, -15])
@@ -31,12 +33,24 @@ class Render:
         other.render = self
         self.objects.append(other)
 
+    def add_path(self, other: Object3D):
+        other.render = self
+        self.paths.append(other)
+
     def draw_(self):
         self.screen.fill(colors["white"])
         self.world_axes.draw()
-        # self.axes.draw(
         for obj in self.objects:
             obj.draw()
+        if self.paths:
+            key = pg.key.get_pressed()
+            if key[pg.K_1]:
+                self.i_path = 0
+            if key[pg.K_2]:
+                self.i_path = 1
+            if key[pg.K_3]:
+                self.i_path = 2
+            self.paths[self.i_path].draw()
 
     def run(self):
         running = True

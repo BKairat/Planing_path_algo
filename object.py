@@ -92,7 +92,6 @@ class Object3D():
         self.screen_projection()
 
     def translate(self, trans: ArrayLike) -> None:
-        # print(trans)
         self.config.trans += trans
         self.points = self.points @ translate(trans)
 
@@ -127,7 +126,6 @@ class Object3D():
         self.rotation(rot)
         self.config.trans = np.array(configuration.trans)
         self.config.rot = np.array(configuration.rot)
-        # print(self.config.rot)
 
     def act(self, trans: np.array, rot: np.array) -> None:
         self.translate(trans)
