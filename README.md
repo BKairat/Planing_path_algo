@@ -23,6 +23,7 @@ ___
 + Set custom map: It must be writen in json file, and located in "configurations folder"
 __example:__
 <br>
+
 ```json 
 //example.json
 {
