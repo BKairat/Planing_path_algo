@@ -36,6 +36,7 @@ __example:__
   "goal": ["goal.obj",[[20.0, 0.0, 20.0], [0.0,0.0,0.0]]]
 }
 ```
+
 ##### Create own model for denoising
 
 + You can use crated datasets in folder ``./dataset``
